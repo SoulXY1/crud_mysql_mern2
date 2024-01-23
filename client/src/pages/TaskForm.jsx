@@ -1,15 +1,16 @@
 import { Form, Formik } from "formik";
 import { useTasks } from "../context/TaskProvider";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 function TaskForm() {
   const { createTask, getTask, updateTask } = useTasks();
-  const [task,  setTask] = useState({
+  const [task, setTask] = useState({
     title: "",
     description: "",
-  })
+  });
   const params = useParams();
+  const navigate = useNavigate()
 
   useEffect(() => {
     const loadTask = async () => {
@@ -17,8 +18,8 @@ function TaskForm() {
         const task = await getTask(params.id);
         setTask({
           title: task.title,
-          description: task.description
-        })
+          description: task.description,
+        });
       }
     };
     loadTask();
@@ -32,13 +33,17 @@ function TaskForm() {
         enableReinitialize={true}
         onSubmit={async (values, actions) => {
           console.log(values);
-          
-          if(params.id) {
-            await updateTask(params.id, values)
+
+          if (params.id) {
+            await updateTask(params.id, values);
+            navigate("/")
           } else {
             await createTask(values);
           }
-          actions.resetForm();
+          setTask({
+            title: "",
+            description: "",
+          });
         }}
       >
         {({ handleChange, handleSubmit, values, isSubmitting }) => (
